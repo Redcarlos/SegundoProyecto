@@ -1,17 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+const express = require('express');
+const morgan = require('morgan'); 
+//'morgan' es para registrar o ver por consola peticiones que estan llegando desde el navegador o app clientes
+const path = require('path');
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const { mongoose } = require('./database');
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+const app = express();
+
+//Settings
+app.set('port', process.env.PORT || 4000);
+
+// Middlewares estos son para funciones 
+app.use(morgan('dev'));
+app.use(express.json());
+
+// Routes
+app.use('/api/tasks',require('./routes/task.routes'));
+
+// Static files
+console.log(path.join(__dirname, 'public'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Stating the server
+app.listen(app.get('port'), () =>{
+    console.log(`Server on port ${app.get('port')}`);
+});
