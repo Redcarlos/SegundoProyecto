@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan'); 
 //'morgan' es para registrar o ver por consola peticiones que estan llegando desde el navegador o app clientes
 const path = require('path');
+require("dotenv");
 
 const { mongoose } = require('./database');
 
