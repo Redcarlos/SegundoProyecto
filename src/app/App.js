@@ -1,6 +1,9 @@
 import { Mongoose } from 'mongoose';
 import React, { Component } from 'react';
 import task from '../models/task';
+import axios from 'axios';
+import regeneratorRuntime from "regenerator-runtime";
+
 
 class App extends Component{
 constructor(){
@@ -8,41 +11,57 @@ constructor(){
     this.state = {
         title: '',
         description: '',
-        tasks: []
+        tasks: [],
+        _id: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.addTask = this.addTask.bind(this);
 }
-addTask(e){
-    fetch('/api/tasks', {
-        method: 'POST',
-        body: JSON.stringify(this.state),
-        headers:{
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log(data)
-        M.toast({html:'Tarea guardada'})
+async addTask(e){
+    if(this.state._id){
+        const response = await axios.put(`/api/tasks/${id}`, this.state);
+        console.log(response);
+        M.toast({html: 'Tarea Modificada'});
         this.setState({title: '', description: ''});
-    })
-    .catch(err => console.error(err));
+        //this.axiosTasks();
+    }else{
+        const response = await axios.post('/api/tasks', this.state);
+        console.log(response);
+        M.toast({html: 'Tarea guardada'});
+        this.setState({title: '', description: ''});
+        this.axiosTasks();
+    }
     e.preventDefault();
 }
 
 componentDidMount(){
-    this.fetchTasks();
+    this.axiosTasks();
 }
 
-fetchTasks(){
-    fetch('/api/tasks')
-    .then(res => res.json())
-    .then(data => {
-        console.log(data);
-        this.setState({tasks:data});
-    });
+async axiosTasks(){
+
+    const response = await axios.get('/api/tasks');
+    console.log(response);
+    this.setState({tasks: response.data});
+}
+
+async deleteTask(id){
+    if(confirm('Estas seguro de eliminar la tarea?')){
+        const response = await axios.delete(`/api/tasks/${id}`)
+        console.log(response);
+        M.toast({html: 'Tarea eliminada'});
+        this.axiosTasks();
+    }
+}
+
+async editTask(id){
+    const response = await axios.get(`/api/tasks/${id}`)
+    console.log(response.data);
+    this.setState({
+        title: response.data.title,
+        description: response.data.description,
+        _id: response.data._id
+    })
 }
 
 handleChange(e){
@@ -96,11 +115,15 @@ handleChange(e){
                                     {
                                         this.state.tasks.map(task => {
                                             return(
-                                                <tr>
+                                                <tr key={task._id}>
                                                     <td>{task.title}</td>
                                                     <td>{task.description}</td>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>
+                                                        <button className="btn light-blue darken-4" onClick={() => this.editTask(task._id)}><i className="material-icons">edit</i></button>
+                                                    </td>
+                                                    <td>
+                                                        <button className="btn light-blue darken-4" onClick={() => this.deleteTask(task._id)}><i className="material-icons">delete</i></button>
+                                                    </td>
                                                 </tr>
                                             )
                                         })
