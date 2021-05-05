@@ -19,7 +19,7 @@ constructor(){
 }
 async addTask(e){
     if(this.state._id){
-        const response = await axios.put(`/api/tasks/${id}`, this.state);
+        const response = await axios.put(`/api/tasks/${this.state._id}`, this.state);
         console.log(response);
         M.toast({html: 'Tarea Modificada'});
         this.setState({title: '', description: ''});
